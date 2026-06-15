@@ -17,6 +17,11 @@ export const createBooking = async (booking: Booking): Promise<Booking> => {
   return response.data
 }
 
+export const getBookings = async (): Promise<Booking[]> => {
+  const response = await apiClient.get('/bookings')
+  return response.data
+}
+
 export const getBooking = async (id: string): Promise<Booking> => {
   const response = await apiClient.get(`/bookings/${id}`)
   return response.data

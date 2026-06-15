@@ -15,23 +15,27 @@ import {
   Table,
   LoadingOverlay,
   Badge,
+  ActionIcon,
 } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { useDisclosure } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
+import { IconTrash } from '@tabler/icons-react'
 import { useEventTypes, useCreateEventType } from '../hooks/useEventTypes'
-import { useDeleteBooking } from '../hooks/useBookings'
+import { useBookings, useDeleteBooking } from '../hooks/useBookings'
 import type { EventType } from '../types'
+import dayjs from 'dayjs'
 
 function OwnerPage() {
   const [opened, { open, close }] = useDisclosure(false)
   const [deleteId, setDeleteId] = useState<string | null>(null)
-  const [deleteOpened, { close: closeDelete }] = useDisclosure(false)
-  
+  const [deleteOpened, { open: openDelete, close: closeDelete }] = useDisclosure(false)
+
   const { data: eventTypes, isLoading: typesLoading } = useEventTypes()
+  const { data: bookings, isLoading: bookingsLoading } = useBookings()
   const createEventType = useCreateEventType()
   const deleteBooking = useDeleteBooking()
-  
+
   const form = useForm({
     initialValues: {
       id: '',
@@ -45,7 +49,7 @@ function OwnerPage() {
       duration: (value) => (value < 5 ? 'Duration must be at least 5 minutes' : null),
     },
   })
-  
+
   const handleCreateEventType = (values: typeof form.values) => {
     const eventType: EventType = {
       id: values.id || crypto.randomUUID(),
@@ -53,7 +57,7 @@ function OwnerPage() {
       description: values.description,
       duration: values.duration,
     }
-    
+
     createEventType.mutate(eventType, {
       onSuccess: () => {
         notifications.show({
@@ -73,10 +77,15 @@ function OwnerPage() {
       },
     })
   }
-  
+
+  const handleDelete = (id: string) => {
+    setDeleteId(id)
+    openDelete()
+  }
+
   const confirmDelete = () => {
     if (!deleteId) return
-    
+
     deleteBooking.mutate(deleteId, {
       onSuccess: () => {
         notifications.show({
@@ -96,14 +105,18 @@ function OwnerPage() {
       },
     })
   }
-  
+
+  const getEventTypeTitle = (eventTypeId: string) => {
+    return eventTypes?.find((et) => et.id === eventTypeId)?.title || eventTypeId
+  }
+
   return (
     <Container size="lg" py="xl">
       <Group justify="space-between" mb="lg">
         <Title order={2}>Owner Dashboard</Title>
         <Button onClick={open}>Create Event Type</Button>
       </Group>
-      
+
       <Title order={3} mb="md">Event Types</Title>
       <div style={{ position: 'relative' }}>
         <LoadingOverlay visible={typesLoading} />
@@ -121,10 +134,10 @@ function OwnerPage() {
           ))}
         </Grid>
       </div>
-      
+
       <Title order={3} mb="md">Upcoming Bookings</Title>
       <div style={{ position: 'relative' }}>
-        <LoadingOverlay visible={false} />
+        <LoadingOverlay visible={bookingsLoading} />
         <Table striped>
           <Table.Thead>
             <Table.Tr>
@@ -136,15 +149,37 @@ function OwnerPage() {
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
-            <Table.Tr>
-              <Table.Td colSpan={5} ta="center">
-                <Text c="dimmed">No bookings found</Text>
-              </Table.Td>
-            </Table.Tr>
+            {bookings && bookings.length > 0 ? (
+              bookings.map((booking) => (
+                <Table.Tr key={booking.id}>
+                  <Table.Td>{getEventTypeTitle(booking.eventTypeId)}</Table.Td>
+                  <Table.Td>
+                    {dayjs(booking.startTime).format('MMM D, HH:mm')}
+                  </Table.Td>
+                  <Table.Td>{booking.guestName}</Table.Td>
+                  <Table.Td>{booking.guestEmail}</Table.Td>
+                  <Table.Td>
+                    <ActionIcon
+                      color="red"
+                      variant="light"
+                      onClick={() => handleDelete(booking.id)}
+                    >
+                      <IconTrash size="16" />
+                    </ActionIcon>
+                  </Table.Td>
+                </Table.Tr>
+              ))
+            ) : (
+              <Table.Tr>
+                <Table.Td colSpan={5} ta="center">
+                  <Text c="dimmed">No bookings found</Text>
+                </Table.Td>
+              </Table.Tr>
+            )}
           </Table.Tbody>
         </Table>
       </div>
-      
+
       <Modal opened={opened} onClose={close} title="Create Event Type">
         <form onSubmit={form.onSubmit(handleCreateEventType)}>
           <Stack>
@@ -181,7 +216,7 @@ function OwnerPage() {
           </Stack>
         </form>
       </Modal>
-      
+
       <Modal opened={deleteOpened} onClose={closeDelete} title="Confirm Deletion">
         <Stack>
           <Text>Are you sure you want to delete this booking?</Text>

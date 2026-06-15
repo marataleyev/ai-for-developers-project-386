@@ -1,11 +1,18 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { getSlots, createBooking, getBooking, deleteBooking } from '../api/bookings'
+import { getSlots, createBooking, getBookings, getBooking, deleteBooking } from '../api/bookings'
 
 export const useSlots = (eventTypeId: string, from: string, to: string) => {
   return useQuery({
     queryKey: ['slots', eventTypeId, from, to],
     queryFn: () => getSlots(eventTypeId, from, to),
     enabled: !!eventTypeId && !!from && !!to,
+  })
+}
+
+export const useBookings = () => {
+  return useQuery({
+    queryKey: ['bookings'],
+    queryFn: getBookings,
   })
 }
 
