@@ -1,5 +1,8 @@
 # Calendar Booking Application
 
+
+🚀 **Live Demo:** [https://ai-for-developers-project-386-l5nz.onrender.com/](https://ai-for-developers-project-386-l5nz.onrender.com/)
+
 Приложение для бронирования слотов в календаре с двумя ролями: **владелец календаря** и **гости**.
 
 ## 📋 Описание
