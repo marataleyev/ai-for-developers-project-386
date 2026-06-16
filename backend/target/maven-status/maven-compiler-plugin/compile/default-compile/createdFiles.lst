@@ -1,3 +1,4 @@
+com/calendar/booking/config/WebConfig$1.class
 com/calendar/booking/repository/BookingRepository.class
 com/calendar/booking/model/Booking.class
 com/calendar/booking/exception/GlobalExceptionHandler.class
@@ -8,6 +9,7 @@ com/calendar/booking/model/EventType.class
 com/calendar/booking/config/CorsConfig.class
 com/calendar/booking/service/BookingService.class
 com/calendar/booking/controller/BookingController.class
+com/calendar/booking/config/WebConfig.class
 com/calendar/booking/exception/SlotUnavailableException.class
 com/calendar/booking/controller/EventTypeController.class
 com/calendar/booking/dto/SlotDTO.class
